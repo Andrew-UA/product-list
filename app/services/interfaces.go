@@ -2,7 +2,7 @@ package services
 
 import (
 	"context"
-	models "github.com/Andrew-UA/product-list/app/ models"
+	models "github.com/Andrew-UA/product-list/app/models"
 )
 
 type AuthServiceInterface interface {

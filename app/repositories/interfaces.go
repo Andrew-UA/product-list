@@ -2,7 +2,7 @@ package repositories
 
 import (
 	"context"
-	models "github.com/Andrew-UA/product-list/app/ models"
+	"github.com/Andrew-UA/product-list/app/models"
 )
 
 type AuthRepository interface {

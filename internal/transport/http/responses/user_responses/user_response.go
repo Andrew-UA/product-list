@@ -1,7 +1,7 @@
 package user_responses
 
 import (
-	models "github.com/Andrew-UA/product-list/app/ models"
+	"github.com/Andrew-UA/product-list/app/models"
 	"github.com/Andrew-UA/product-list/internal/transport/http/responses"
 	"time"
 )
