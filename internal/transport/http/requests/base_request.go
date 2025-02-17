@@ -3,57 +3,19 @@ package requests
 import (
 	"encoding/json"
 	"errors"
+	"github.com/Andrew-UA/product-list/app/dto"
 	"github.com/go-playground/validator/v10"
 	"io"
-	"reflect"
 )
 
 type Request interface {
 	ReadAndClose(data io.ReadCloser) error
 	Validate() []error
-	ToMap() map[string]any
+	ToDTO() dto.DTO
 }
 
 type BaseRequest struct {
-	RawData json.RawMessage `json:"-"`
-}
-
-func (r *BaseRequest) ToMap() map[string]interface{} {
-	result := make(map[string]interface{})
-
-	if len(r.RawData) == 0 {
-		return result
-	}
-
-	var rawMap map[string]interface{}
-	if err := json.Unmarshal(r.RawData, &rawMap); err != nil {
-		return result
-	}
-
-	rv := reflect.ValueOf(r).Elem()
-	rt := rv.Type()
-
-	for i := 0; i < rv.NumField(); i++ {
-		field := rt.Field(i)
-		fieldValue := rv.Field(i)
-
-		if field.Name == "RawData" {
-			continue
-		}
-
-		jsonTag := field.Tag.Get("json")
-		if jsonTag == "-" || jsonTag == "" {
-			continue
-		}
-
-		if _, exists := rawMap[jsonTag]; !exists {
-			continue
-		}
-
-		result[jsonTag] = fieldValue.Interface()
-	}
-
-	return result
+	RawMap map[string]json.RawMessage `json:"-"`
 }
 
 func (r *BaseRequest) ReadAndClose(reader io.ReadCloser) error {
@@ -64,7 +26,10 @@ func (r *BaseRequest) ReadAndClose(reader io.ReadCloser) error {
 		return err
 	}
 
-	r.RawData = body
+	err = json.Unmarshal(body, &r.RawMap)
+	if err != nil {
+		return err
+	}
 
 	return json.Unmarshal(body, r)
 }
@@ -86,4 +51,13 @@ func (r *BaseRequest) Validate() []error {
 	}
 
 	return errs
+}
+
+func (r *BaseRequest) HasField(fieldName string) (exists bool, isNull bool) {
+	value, exists := r.RawMap[fieldName]
+	if !exists {
+		return false, false
+	}
+
+	return true, string(value) == "null"
 }

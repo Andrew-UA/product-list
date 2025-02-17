@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"github.com/Andrew-UA/product-list/app/dto"
 	"github.com/Andrew-UA/product-list/app/models"
 	"github.com/Andrew-UA/product-list/app/repositories"
 )
@@ -28,16 +29,14 @@ func (u UserService) GetUserByLogin(ctx context.Context, login string) (*models.
 	return u.userRepository.GetByLogin(ctx, login)
 }
 
-func (u UserService) CreateUser(ctx context.Context, data map[string]any) (*models.User, error) {
+func (u UserService) CreateUser(ctx context.Context, data dto.UserDTO) (*models.User, error) {
 	user := &models.User{}
-	user = u.mapToUser(ctx, data, user)
 	user.Role = models.USER_DEFAULT_ROLE
 
 	return u.userRepository.Create(ctx, user)
 }
 
-func (u UserService) UpdateUser(ctx context.Context, data map[string]any, user *models.User) (*models.User, error) {
-	user = u.mapToUser(ctx, data, user)
+func (u UserService) UpdateUser(ctx context.Context, data dto.UserDTO, user *models.User) (*models.User, error) {
 
 	return u.userRepository.Update(ctx, user)
 }
@@ -46,16 +45,8 @@ func (u UserService) DeleteUser(ctx context.Context, user *models.User) error {
 	return u.userRepository.Delete(ctx, user)
 }
 
-func (u UserService) mapToUser(_ context.Context, data map[string]any, user *models.User) *models.User {
-	if fistsName, ok := data["first_name"].(string); ok {
-		user.FirstName = fistsName
-	}
-	if secondName, ok := data["second_name"].(string); ok {
-		user.SecondName = secondName
-	}
-	if email, ok := data["email"].(string); ok {
-		user.Email = email
-	}
+func (u UserService) mapToUser(_ context.Context, data dto.UserDTO, user *models.User) *models.User {
+	//TODO:
 
 	return user
 }

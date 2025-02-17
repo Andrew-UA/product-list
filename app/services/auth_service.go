@@ -10,8 +10,10 @@ type AuthService struct {
 	AuthRepository repositories.AuthRepository
 }
 
-func NewAuthService() *AuthService {
-	return &AuthService{}
+func NewAuthService(repository repositories.AuthRepository) *AuthService {
+	return &AuthService{
+		AuthRepository: repository,
+	}
 }
 
 func (authService *AuthService) Login(ctx context.Context, user *models.User, password string) (string, error) {

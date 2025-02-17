@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"github.com/Andrew-UA/product-list/app/services"
-	"github.com/Andrew-UA/product-list/internal/config"
 	"github.com/Andrew-UA/product-list/internal/transport/http/requests/user_requests"
 	"github.com/Andrew-UA/product-list/internal/transport/http/responses"
 	"github.com/Andrew-UA/product-list/internal/transport/http/responses/user_responses"
@@ -11,13 +10,11 @@ import (
 )
 
 type UserHandler struct {
-	config      *config.Config
 	userService services.UsersServiceInterface
 }
 
-func NewUserHandler(config *config.Config, userService services.UsersServiceInterface) *UserHandler {
+func NewUserHandler(userService services.UsersServiceInterface) *UserHandler {
 	return &UserHandler{
-		config:      config,
 		userService: userService,
 	}
 }
@@ -56,7 +53,7 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 	_ = request.ReadAndClose(r.Body)
 	_ = request.Validate()
 
-	data := request.ToMap()
+	data := request.ToDTO()
 	user, _ := h.userService.CreateUser(ctx, data)
 
 	response = user_responses.NewUserResponse(user)
@@ -77,7 +74,7 @@ func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 	_ = request.ReadAndClose(r.Body)
 	_ = request.Validate()
 
-	data := request.ToMap()
+	data := request.ToDTO()
 	user, _ = h.userService.UpdateUser(ctx, data, user)
 
 	response = user_responses.NewUserResponse(user)
