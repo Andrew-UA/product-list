@@ -7,14 +7,14 @@ import (
 )
 
 type ResponseInterface interface {
-	Write(closer io.Writer)
+	Write(closer io.Writer) error
 }
 
-type Response struct {
+type ResponseJson struct {
 	statusCode int
 }
 
-func (r *Response) Write(w io.Writer) error {
+func (r *ResponseJson) Write(w io.Writer) error {
 	if rc, ok := w.(http.ResponseWriter); ok {
 		rc.Header().Set("Content-Type", "application/json")
 		rc.WriteHeader(r.statusCode)
@@ -23,6 +23,7 @@ func (r *Response) Write(w io.Writer) error {
 	return json.NewEncoder(w).Encode(r)
 }
 
-func (r *Response) SetStatusCode(statusCode int) {
+func (r *ResponseJson) SetStatusCode(statusCode int) ResponseInterface {
 	r.statusCode = statusCode
+	return r
 }

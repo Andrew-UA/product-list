@@ -1,20 +1,18 @@
-package mysql
+package mongodb
 
 import (
 	"context"
-	"database/sql"
 	"github.com/Andrew-UA/product-list/app/dto"
 	"github.com/Andrew-UA/product-list/app/models"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type UserRepository struct {
-	conn *sql.DB
+	client *mongo.Client
 }
 
-func NewUserRepository(conn *sql.DB) *UserRepository {
-	return &UserRepository{
-		conn: conn,
-	}
+func NewUserRepository(client *mongo.Client) *UserRepository {
+	return &UserRepository{client: client}
 }
 
 func (u UserRepository) GetList(ctx context.Context) ([]models.User, error) {
@@ -22,12 +20,12 @@ func (u UserRepository) GetList(ctx context.Context) ([]models.User, error) {
 	panic("implement me")
 }
 
-func (u UserRepository) GetById(ctx context.Context, userId int64) (*models.User, error) {
+func (u UserRepository) GetById(ctx context.Context, userId uint64) (*models.User, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (u UserRepository) GetByLogin(ctx context.Context, login string) (*models.User, error) {
+func (u UserRepository) GetByEmail(ctx context.Context, email string) (*models.User, error) {
 	//TODO implement me
 	panic("implement me")
 }

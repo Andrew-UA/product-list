@@ -38,3 +38,7 @@ func (m *MySQLConnector) Close(ctx context.Context) error {
 	}
 	return nil
 }
+
+func (m *MySQLConnector) Type() DatabaseType {
+	return MySQL
+}

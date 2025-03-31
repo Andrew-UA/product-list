@@ -25,28 +25,22 @@ func (u UserService) GetUserById(ctx context.Context, id int64) (*models.User, e
 	return u.userRepository.GetById(ctx, id)
 }
 
-func (u UserService) GetUserByLogin(ctx context.Context, login string) (*models.User, error) {
-	return u.userRepository.GetByLogin(ctx, login)
+func (u UserService) GetUserByEmail(ctx context.Context, login string) (*models.User, error) {
+	return u.userRepository.GetByEmail(ctx, login)
 }
 
 func (u UserService) CreateUser(ctx context.Context, data dto.UserDTO) (*models.User, error) {
-	user := &models.User{}
-	user.Role = models.USER_DEFAULT_ROLE
-
-	return u.userRepository.Create(ctx, user)
+	if data.Role == nil {
+		role := string(models.USER_DEFAULT_ROLE)
+		data.Role = &role
+	}
+	return u.userRepository.Create(ctx, data)
 }
 
 func (u UserService) UpdateUser(ctx context.Context, data dto.UserDTO, user *models.User) (*models.User, error) {
-
-	return u.userRepository.Update(ctx, user)
+	return u.userRepository.Update(ctx, data, user)
 }
 
 func (u UserService) DeleteUser(ctx context.Context, user *models.User) error {
 	return u.userRepository.Delete(ctx, user)
-}
-
-func (u UserService) mapToUser(_ context.Context, data dto.UserDTO, user *models.User) *models.User {
-	//TODO:
-
-	return user
 }

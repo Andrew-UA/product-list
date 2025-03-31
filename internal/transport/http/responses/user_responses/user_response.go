@@ -7,9 +7,9 @@ import (
 )
 
 type UserResponse struct {
-	responses.Response
+	responses.ResponseJson
 
-	ID         uint       `json:"id"`
+	ID         uint64     `json:"id"`
 	FirstName  string     `json:"first_name"`
 	SecondName string     `json:"second_name"`
 	Email      string     `json:"email"`

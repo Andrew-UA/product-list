@@ -43,3 +43,7 @@ func (m *MongoConnector) Close(ctx context.Context) error {
 	}
 	return nil
 }
+
+func (m *MongoConnector) Type() DatabaseType {
+	return Mongo
+}

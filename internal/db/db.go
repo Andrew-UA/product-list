@@ -6,23 +6,34 @@ import (
 	"github.com/Andrew-UA/product-list/internal/config"
 )
 
+type DatabaseType string
+
+const (
+	MySQL    DatabaseType = "mysql"
+	SQLite   DatabaseType = "sqlite"
+	Postgres DatabaseType = "postgres"
+	Mongo    DatabaseType = "mongo"
+)
+
 type DatabaseConnector interface {
 	Connect() (any, error)
 	Close(ctx context.Context) error
+	Type() DatabaseType
 }
 
 func GetDataBaseConnector(cfg *config.Config) (DatabaseConnector, error) {
-	switch cfg.DbType {
-	case "mysql":
+
+	switch DatabaseType(cfg.DbType) {
+	case MySQL:
 		return NewMySQLConnector(cfg), nil
 
-	case "postgres":
+	case Postgres:
 		return NewPostgresConnector(cfg), nil
 
-	case "sqlite":
+	case SQLite:
 		return NewSQLiteConnector(cfg), nil
 
-	case "mongo":
+	case Mongo:
 		return NewMongoConnector(cfg), nil
 
 	default:

@@ -6,7 +6,7 @@ import (
 )
 
 type UserListResponse struct {
-	responses.Response
+	responses.ResponseJson
 
 	Users []*UserResponse `json:"users"`
 }

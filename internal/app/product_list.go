@@ -2,14 +2,15 @@ package app
 
 import (
 	"context"
-	"database/sql"
-	"github.com/Andrew-UA/product-list/app/repositories/mysql"
+	"github.com/Andrew-UA/product-list/app/repositories"
 	"github.com/Andrew-UA/product-list/app/services"
 	"github.com/Andrew-UA/product-list/internal/config"
 	"github.com/Andrew-UA/product-list/internal/db"
 	"github.com/Andrew-UA/product-list/internal/server"
 	"github.com/Andrew-UA/product-list/internal/transport/http"
 	"github.com/Andrew-UA/product-list/internal/transport/http/handlers"
+	"github.com/Andrew-UA/product-list/internal/transport/http/middleware"
+	"github.com/Andrew-UA/product-list/pkg/auth"
 	"github.com/rs/zerolog/log"
 	"os"
 	"os/signal"
@@ -30,30 +31,26 @@ func Run() {
 		log.Fatal().Err(err).Msg("failed get db connector")
 	}
 
-	conn, err := dbConnector.Connect()
+	repositoryFactory, err := repositories.GetRepositoryFactory(dbConnector)
 	if err != nil {
-		log.Fatal().Err(err).Msg("failed to connect to database")
+		log.Fatal().Err(err).Msg("failed get repository factory")
 	}
-
-	// Init Mysql Repositories
-	mysqlDB, ok := conn.(*sql.DB)
-	if !ok {
-		log.Fatal().Msg("expected *sql.DB, got a different type")
-	}
-
-	userRepo := mysql.NewUserRepository(mysqlDB)
-	authRepo := mysql.NewAuthRepository(mysqlDB)
 
 	// Innit Services
-	userService := services.NewUserService(userRepo)
-	authService := services.NewAuthService(authRepo)
+	passwordManager := auth.NewBcryptPasswordManager()
+	tokenManager := auth.NewJWTTokenManager(conf.AppKey)
+	userService := services.NewUserService(repositoryFactory.UserRepository())
+	authService := services.NewAuthService(passwordManager, tokenManager, repositoryFactory.AuthRepository())
+
+	// Innit Middleware
+	authMiddleware := middleware.NewAuthMiddleware(userService, authService, tokenManager)
 
 	// Innit Handlers
 	healthHandler := handlers.NewHealthHandler(conf)
 	authHandler := handlers.NewAuthHandler(userService, authService)
 	userHandler := handlers.NewUserHandler(userService)
 
-	router := http.NewRouter(conf, healthHandler, authHandler, userHandler)
+	router := http.NewRouter(conf, authMiddleware.HandleFunc, healthHandler, authHandler, userHandler)
 	srv := server.NewServer(conf, router.Mux)
 
 	go func() {

@@ -20,19 +20,13 @@ func NewUserHandler(userService services.UsersServiceInterface) *UserHandler {
 }
 
 func (h *UserHandler) Index(w http.ResponseWriter, r *http.Request) {
-	var response *user_responses.UserListResponse
-
 	ctx := r.Context()
 	users, _ := h.userService.GetUsers(ctx)
 
-	response = user_responses.NewUserListResponse(users)
-	response.SetStatusCode(http.StatusOK)
-	response.Write(w)
+	user_responses.NewUserListResponse(users).SetStatusCode(http.StatusOK).Write(w)
 }
 
 func (h *UserHandler) Show(w http.ResponseWriter, r *http.Request) {
-	var response *user_responses.UserResponse
-
 	ctx := r.Context()
 
 	userIdStr := r.URL.Query().Get("id")
@@ -40,9 +34,7 @@ func (h *UserHandler) Show(w http.ResponseWriter, r *http.Request) {
 
 	user, _ := h.userService.GetUserById(ctx, userId)
 
-	response = user_responses.NewUserResponse(user)
-	response.SetStatusCode(http.StatusOK)
-	response.Write(w)
+	user_responses.NewUserResponse(user).SetStatusCode(http.StatusOK).Write(w)
 }
 
 func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
@@ -83,7 +75,7 @@ func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) Delete(w http.ResponseWriter, r *http.Request) {
-	var response *responses.Response
+	var response *responses.ResponseJson
 
 	ctx := r.Context()
 	userIdStr := r.URL.Query().Get("id")
@@ -93,7 +85,7 @@ func (h *UserHandler) Delete(w http.ResponseWriter, r *http.Request) {
 
 	_ = h.userService.DeleteUser(ctx, user)
 
-	response = &responses.Response{}
+	response = &responses.ResponseJson{}
 	response.SetStatusCode(http.StatusAccepted)
 	response.Write(w)
 }

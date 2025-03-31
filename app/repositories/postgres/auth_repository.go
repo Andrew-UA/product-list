@@ -1,4 +1,4 @@
-package mysql
+package postgres
 
 import (
 	"database/sql"
@@ -14,7 +14,7 @@ func NewAuthRepository(db *sql.DB) *AuthRepository {
 	return &AuthRepository{
 		AuthRepository: &sqlbase.AuthRepository{
 			DB:        db,
-			Format:    squirrel.Question,
+			Format:    squirrel.Dollar,
 			TableName: "jwt_auth",
 		},
 	}

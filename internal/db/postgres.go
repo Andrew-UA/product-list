@@ -39,3 +39,7 @@ func (p *PostgresConnector) Close(ctx context.Context) error {
 	}
 	return nil
 }
+
+func (p *PostgresConnector) Type() DatabaseType {
+	return Postgres
+}

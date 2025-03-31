@@ -33,3 +33,7 @@ func (s *SQLiteConnector) Close(ctx context.Context) error {
 	}
 	return nil
 }
+
+func (s *SQLiteConnector) Type() DatabaseType {
+	return SQLite
+}

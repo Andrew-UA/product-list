@@ -10,6 +10,7 @@ import (
 type Config struct {
 	LogLevel   string
 	AppName    string
+	AppKey     string
 	AppHost    string
 	AppPort    string
 	AppEnv     string
@@ -45,6 +46,7 @@ func InitConfig() (*Config, error) {
 		DbName:     getEnv("DB_NAME", "product_list"),
 		DbFilepath: getEnv("DB_FILE_PATH", "./.temp/sqlite/product_list.db"), //sqlite
 		DbSslMode:  getEnv("DB_SSL_MODE", "disable"),                         //postgres
+		AppKey:     getEnv("APP_KEY", ""),
 	}
 
 	return config, nil
