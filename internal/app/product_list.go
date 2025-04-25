@@ -10,6 +10,7 @@ import (
 	"github.com/Andrew-UA/product-list/internal/transport/http"
 	"github.com/Andrew-UA/product-list/internal/transport/http/handlers"
 	"github.com/Andrew-UA/product-list/internal/transport/http/middleware"
+	"github.com/Andrew-UA/product-list/internal/validation"
 	"github.com/Andrew-UA/product-list/pkg/auth"
 	"github.com/rs/zerolog/log"
 	"os"
@@ -37,6 +38,7 @@ func Run() {
 	}
 
 	// Innit Services
+	validator := validation.NewValidator()
 	passwordManager := auth.NewBcryptPasswordManager()
 	tokenManager := auth.NewJWTTokenManager(conf.AppKey)
 	userService := services.NewUserService(repositoryFactory.UserRepository())
@@ -48,7 +50,7 @@ func Run() {
 	// Innit Handlers
 	healthHandler := handlers.NewHealthHandler(conf)
 	authHandler := handlers.NewAuthHandler(userService, authService)
-	userHandler := handlers.NewUserHandler(userService)
+	userHandler := handlers.NewUserHandler(validator, userService)
 
 	router := http.NewRouter(conf, authMiddleware.HandleFunc, healthHandler, authHandler, userHandler)
 	srv := server.NewServer(conf, router.Mux)

@@ -14,6 +14,12 @@ type ResponseJson struct {
 	statusCode int
 }
 
+func NewResponseJson(statusCode int) *ResponseJson {
+	return &ResponseJson{
+		statusCode: statusCode,
+	}
+}
+
 func (r *ResponseJson) Write(w io.Writer) error {
 	if rc, ok := w.(http.ResponseWriter); ok {
 		rc.Header().Set("Content-Type", "application/json")

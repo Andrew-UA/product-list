@@ -1,20 +1,24 @@
 package handlers
 
 import (
+	"encoding/json"
 	"github.com/Andrew-UA/product-list/app/services"
 	"github.com/Andrew-UA/product-list/internal/transport/http/requests/user_requests"
 	"github.com/Andrew-UA/product-list/internal/transport/http/responses"
 	"github.com/Andrew-UA/product-list/internal/transport/http/responses/user_responses"
+	"github.com/Andrew-UA/product-list/internal/validation"
 	"net/http"
 	"strconv"
 )
 
 type UserHandler struct {
+	validator   validation.ValidatorInterface
 	userService services.UsersServiceInterface
 }
 
-func NewUserHandler(userService services.UsersServiceInterface) *UserHandler {
+func NewUserHandler(validator validation.ValidatorInterface, userService services.UsersServiceInterface) *UserHandler {
 	return &UserHandler{
+		validator:   validator,
 		userService: userService,
 	}
 }
@@ -39,23 +43,24 @@ func (h *UserHandler) Show(w http.ResponseWriter, r *http.Request) {
 
 func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 	var request user_requests.CreateUserRequest
-	var response *user_responses.UserResponse
 
-	ctx := r.Context()
-	_ = request.ReadAndClose(r.Body)
-	_ = request.Validate()
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+	}
+	err = h.validator.ValidateStruct(request)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+	}
 
 	data := request.ToDTO()
-	user, _ := h.userService.CreateUser(ctx, data)
+	user, _ := h.userService.CreateUser(r.Context(), data)
 
-	response = user_responses.NewUserResponse(user)
-	response.SetStatusCode(http.StatusCreated)
-	response.Write(w)
+	user_responses.NewUserResponse(user).SetStatusCode(http.StatusCreated).Write(w)
 }
 
 func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 	var request user_requests.UpdateUserRequest
-	var response *user_responses.UserResponse
 
 	ctx := r.Context()
 	userIdStr := r.URL.Query().Get("id")
@@ -63,20 +68,18 @@ func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 
 	user, _ := h.userService.GetUserById(ctx, userId)
 
-	_ = request.ReadAndClose(r.Body)
-	_ = request.Validate()
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+	}
 
 	data := request.ToDTO()
 	user, _ = h.userService.UpdateUser(ctx, data, user)
 
-	response = user_responses.NewUserResponse(user)
-	response.SetStatusCode(http.StatusAccepted)
-	response.Write(w)
+	user_responses.NewUserResponse(user).SetStatusCode(http.StatusOK).Write(w)
 }
 
 func (h *UserHandler) Delete(w http.ResponseWriter, r *http.Request) {
-	var response *responses.ResponseJson
-
 	ctx := r.Context()
 	userIdStr := r.URL.Query().Get("id")
 	userId, _ := strconv.ParseInt(userIdStr, 10, 64)
@@ -85,7 +88,5 @@ func (h *UserHandler) Delete(w http.ResponseWriter, r *http.Request) {
 
 	_ = h.userService.DeleteUser(ctx, user)
 
-	response = &responses.ResponseJson{}
-	response.SetStatusCode(http.StatusAccepted)
-	response.Write(w)
+	responses.NewResponseJson(http.StatusNoContent).Write(w)
 }
