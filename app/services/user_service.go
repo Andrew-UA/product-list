@@ -4,14 +4,14 @@ import (
 	"context"
 	"github.com/Andrew-UA/product-list/app/dto"
 	"github.com/Andrew-UA/product-list/app/models"
-	"github.com/Andrew-UA/product-list/app/repositories"
+	"github.com/Andrew-UA/product-list/app/repositories/interfaces"
 )
 
 type UserService struct {
-	userRepository repositories.UserRepository
+	userRepository interfaces.UserRepository
 }
 
-func NewUserService(repository repositories.UserRepository) *UserService {
+func NewUserService(repository interfaces.UserRepository) *UserService {
 	return &UserService{
 		userRepository: repository,
 	}
@@ -21,7 +21,7 @@ func (u UserService) GetUsers(ctx context.Context) ([]models.User, error) {
 	return u.userRepository.GetList(ctx)
 }
 
-func (u UserService) GetUserById(ctx context.Context, id int64) (*models.User, error) {
+func (u UserService) GetUserById(ctx context.Context, id uint64) (*models.User, error) {
 	return u.userRepository.GetById(ctx, id)
 }
 

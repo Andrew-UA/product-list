@@ -6,7 +6,7 @@ import (
 	"errors"
 	"github.com/Andrew-UA/product-list/app/dto"
 	"github.com/Andrew-UA/product-list/app/models"
-	"github.com/Andrew-UA/product-list/app/repositories"
+	rErrors "github.com/Andrew-UA/product-list/app/repositories/errors"
 	"github.com/Masterminds/squirrel"
 	"time"
 )
@@ -101,7 +101,7 @@ func (u *UserRepository) GetById(ctx context.Context, userId uint64) (*models.Us
 	err = u.ScanUser(row, &user)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, repositories.NotFoundError
+			return nil, rErrors.NotFoundError
 		}
 		return nil, err
 	}
@@ -128,7 +128,7 @@ func (u *UserRepository) GetByEmail(ctx context.Context, email string) (*models.
 	err = u.ScanUser(row, &user)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, repositories.NotFoundError
+			return nil, rErrors.NotFoundError
 		}
 		return nil, err
 	}

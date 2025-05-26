@@ -16,9 +16,10 @@ const (
 )
 
 type DatabaseConnector interface {
-	Connect() (any, error)
+	Connect() error
 	Close(ctx context.Context) error
 	Type() DatabaseType
+	Connection() any
 }
 
 func GetDataBaseConnector(cfg *config.Config) (DatabaseConnector, error) {

@@ -3,21 +3,25 @@ package handlers
 import (
 	"errors"
 	"github.com/Andrew-UA/product-list/app/services"
+	"github.com/Andrew-UA/product-list/internal/transport/http/requests"
 	"github.com/Andrew-UA/product-list/internal/transport/http/requests/auth_requests"
 	"github.com/Andrew-UA/product-list/internal/transport/http/responses"
 	"github.com/Andrew-UA/product-list/internal/transport/http/responses/auth_responses"
+	"github.com/Andrew-UA/product-list/internal/validation"
 	"net/http"
 )
 
 var ErrInvalidCredentials = errors.New("invalid email or password")
 
 type AuthHandler struct {
+	Validator   validation.ValidatorInterface
 	UserService services.UsersServiceInterface
 	AuthService services.AuthServiceInterface
 }
 
-func NewAuthHandler(userService services.UsersServiceInterface, authService services.AuthServiceInterface) *AuthHandler {
+func NewAuthHandler(validator validation.ValidatorInterface, userService services.UsersServiceInterface, authService services.AuthServiceInterface) *AuthHandler {
 	return &AuthHandler{
+		Validator:   validator,
 		UserService: userService,
 		AuthService: authService,
 	}
@@ -28,16 +32,15 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	err := request.ReadAndClose(r.Body)
+	err := requests.ReadAndCLose(r, &request)
 	if err != nil {
 		responses.NewErrorResponse(err).SetStatusCode(http.StatusBadRequest).Write(w)
 		return
 	}
 
-	errs := request.Validate()
-	if len(errs) > 0 {
-		responses.NewErrorResponse(errs...).SetStatusCode(http.StatusBadRequest).Write(w)
-		return
+	err = h.Validator.ValidateStruct(&request)
+	if err != nil {
+		responses.NewErrorResponse(err).SetStatusCode(http.StatusBadRequest).Write(w)
 	}
 
 	user, err := h.UserService.GetUserByEmail(ctx, request.Email)

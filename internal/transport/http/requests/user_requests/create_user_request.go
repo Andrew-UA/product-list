@@ -11,6 +11,16 @@ type CreateUserRequest struct {
 	Nickname   *string `json:"nickname" validate:"omitempty,min=2,max=50"`
 }
 
+func (r *CreateUserRequest) BeforeValidation() error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (r *CreateUserRequest) AfterValidation() error {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (r *CreateUserRequest) ToDTO() dto.UserDTO {
 	userDTO := dto.UserDTO{
 		FirstName:  &r.FirstName,

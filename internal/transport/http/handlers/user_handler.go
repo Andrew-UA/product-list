@@ -36,7 +36,7 @@ func (h *UserHandler) Show(w http.ResponseWriter, r *http.Request) {
 	userIdStr := r.URL.Query().Get("id")
 	userId, _ := strconv.ParseInt(userIdStr, 10, 64)
 
-	user, _ := h.userService.GetUserById(ctx, userId)
+	user, _ := h.userService.GetUserById(ctx, uint64(userId))
 
 	user_responses.NewUserResponse(user).SetStatusCode(http.StatusOK).Write(w)
 }
@@ -48,7 +48,7 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 	}
-	err = h.validator.ValidateStruct(request)
+	err = h.validator.ValidateStruct(&request)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 	}
@@ -66,7 +66,7 @@ func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 	userIdStr := r.URL.Query().Get("id")
 	userId, _ := strconv.ParseInt(userIdStr, 10, 64)
 
-	user, _ := h.userService.GetUserById(ctx, userId)
+	user, _ := h.userService.GetUserById(ctx, uint64(userId))
 
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
@@ -84,7 +84,7 @@ func (h *UserHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	userIdStr := r.URL.Query().Get("id")
 	userId, _ := strconv.ParseInt(userIdStr, 10, 64)
 
-	user, _ := h.userService.GetUserById(ctx, userId)
+	user, _ := h.userService.GetUserById(ctx, uint64(userId))
 
 	_ = h.userService.DeleteUser(ctx, user)
 

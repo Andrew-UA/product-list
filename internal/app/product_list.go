@@ -32,7 +32,19 @@ func Run() {
 		log.Fatal().Err(err).Msg("failed get db connector")
 	}
 
-	repositoryFactory, err := repositories.GetRepositoryFactory(dbConnector)
+	// Connect to db
+	err = dbConnector.Connect()
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to connect to database")
+	}
+
+	//Run migrations
+	err = db.RunMigrations(dbConnector)
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to run migrations")
+	}
+
+	repository, err := repositories.CreateRepository(dbConnector)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed get repository factory")
 	}
@@ -41,15 +53,15 @@ func Run() {
 	validator := validation.NewValidator()
 	passwordManager := auth.NewBcryptPasswordManager()
 	tokenManager := auth.NewJWTTokenManager(conf.AppKey)
-	userService := services.NewUserService(repositoryFactory.UserRepository())
-	authService := services.NewAuthService(passwordManager, tokenManager, repositoryFactory.AuthRepository())
+	userService := services.NewUserService(repository.UserRepository())
+	authService := services.NewAuthService(passwordManager, tokenManager, repository.AuthRepository())
 
 	// Innit Middleware
 	authMiddleware := middleware.NewAuthMiddleware(userService, authService, tokenManager)
 
 	// Innit Handlers
 	healthHandler := handlers.NewHealthHandler(conf)
-	authHandler := handlers.NewAuthHandler(userService, authService)
+	authHandler := handlers.NewAuthHandler(validator, userService, authService)
 	userHandler := handlers.NewUserHandler(validator, userService)
 
 	router := http.NewRouter(conf, authMiddleware.HandleFunc, healthHandler, authHandler, userHandler)

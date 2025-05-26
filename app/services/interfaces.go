@@ -14,7 +14,7 @@ type AuthServiceInterface interface {
 
 type UsersServiceInterface interface {
 	GetUsers(ctx context.Context) ([]models.User, error)
-	GetUserById(ctx context.Context, userId int64) (*models.User, error)
+	GetUserById(ctx context.Context, userId uint64) (*models.User, error)
 	GetUserByEmail(ctx context.Context, email string) (*models.User, error)
 	CreateUser(ctx context.Context, data dto.UserDTO) (*models.User, error)
 	UpdateUser(ctx context.Context, data dto.UserDTO, user *models.User) (*models.User, error)

@@ -14,7 +14,6 @@ type UpdateUserRequest struct {
 }
 
 func (r *UpdateUserRequest) ToDTO() dto.UserDTO {
-	var exist, isNull bool
 	userDTO := dto.UserDTO{
 		FirstName:  r.FirstName,
 		SecondName: r.SecondName,
@@ -22,9 +21,10 @@ func (r *UpdateUserRequest) ToDTO() dto.UserDTO {
 		Nickname:   dto.Nullable[string]{},
 	}
 
-	exist, isNull = r.HasField("nickname")
-	if exist && isNull {
+	if r.Nickname == nil {
 		userDTO.Nickname.SetNull()
+	} else {
+		userDTO.Nickname.SetValue(*r.Nickname)
 	}
 
 	return userDTO

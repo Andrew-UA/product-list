@@ -21,7 +21,7 @@ func NewMongoConnector(cfg *config.Config) *MongoConnector {
 }
 
 // Connect створює з'єднання з MongoDB
-func (m *MongoConnector) Connect() (any, error) {
+func (m *MongoConnector) Connect() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -29,12 +29,14 @@ func (m *MongoConnector) Connect() (any, error) {
 
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect to MongoDB: %w", err)
+		return fmt.Errorf("failed to connect to MongoDB: %w", err)
 	}
 	if err := client.Ping(ctx, nil); err != nil {
-		return nil, fmt.Errorf("MongoDB is not responding: %w", err)
+		return fmt.Errorf("MongoDB is not responding: %w", err)
 	}
-	return client, nil
+	m.client = client
+
+	return nil
 }
 
 func (m *MongoConnector) Close(ctx context.Context) error {
@@ -46,4 +48,8 @@ func (m *MongoConnector) Close(ctx context.Context) error {
 
 func (m *MongoConnector) Type() DatabaseType {
 	return Mongo
+}
+
+func (m *MongoConnector) Connection() any {
+	return m.client
 }

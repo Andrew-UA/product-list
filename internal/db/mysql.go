@@ -20,17 +20,19 @@ func NewMySQLConnector(cfg *config.Config) *MySQLConnector {
 }
 
 // Connect створює з'єднання з MySQL
-func (m *MySQLConnector) Connect() (any, error) {
+func (m *MySQLConnector) Connect() error {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", m.cfg.DbUser, m.cfg.DbPassword, m.cfg.DbHost, m.cfg.DbPort, m.cfg.DbName)
 
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect to MySQL: %w", err)
+		return fmt.Errorf("failed to connect to MySQL: %w", err)
 	}
 	if err := db.Ping(); err != nil {
-		return nil, fmt.Errorf("MySQL is not responding: %w", err)
+		return fmt.Errorf("MySQL is not responding: %w", err)
 	}
-	return db, nil
+	m.db = db
+
+	return nil
 }
 func (m *MySQLConnector) Close(ctx context.Context) error {
 	if m.db != nil {
@@ -41,4 +43,8 @@ func (m *MySQLConnector) Close(ctx context.Context) error {
 
 func (m *MySQLConnector) Type() DatabaseType {
 	return MySQL
+}
+
+func (m *MySQLConnector) Connection() any {
+	return m.db
 }

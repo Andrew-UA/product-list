@@ -20,17 +20,19 @@ func NewPostgresConnector(cfg *config.Config) *PostgresConnector {
 }
 
 // Connect створює з'єднання з PostgresSQL
-func (p *PostgresConnector) Connect() (any, error) {
+func (p *PostgresConnector) Connect() error {
 	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s", p.cfg.DbUser, p.cfg.DbPassword, p.cfg.DbHost, p.cfg.DbPort, p.cfg.DbName, p.cfg.DbSslMode)
 
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect to PostgreSQL: %w", err)
+		return fmt.Errorf("failed to connect to PostgreSQL: %w", err)
 	}
 	if err := db.Ping(); err != nil {
-		return nil, fmt.Errorf("PostgreSQL is not responding: %w", err)
+		return fmt.Errorf("PostgreSQL is not responding: %w", err)
 	}
-	return db, nil
+	p.db = db
+
+	return nil
 }
 
 func (p *PostgresConnector) Close(ctx context.Context) error {
@@ -42,4 +44,8 @@ func (p *PostgresConnector) Close(ctx context.Context) error {
 
 func (p *PostgresConnector) Type() DatabaseType {
 	return Postgres
+}
+
+func (m *PostgresConnector) Connection() any {
+	return m.db
 }

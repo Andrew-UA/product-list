@@ -3,7 +3,10 @@ package db
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"github.com/Andrew-UA/product-list/internal/config"
+	"os"
+	"path/filepath"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -19,12 +22,27 @@ func NewSQLiteConnector(cfg *config.Config) *SQLiteConnector {
 }
 
 // Connect створює з'єднання з SQLite
-func (s *SQLiteConnector) Connect() (any, error) {
+func (s *SQLiteConnector) Connect() error {
+	if _, err := os.Stat(s.cfg.DbFilepath); os.IsNotExist(err) {
+		if err := os.MkdirAll(filepath.Dir(s.cfg.DbFilepath), 0755); err != nil {
+			return fmt.Errorf("failed to create directory: %w", err)
+		}
+	} else if err != nil {
+		return fmt.Errorf("failed to stat database file: %w", err)
+	}
+
 	db, err := sql.Open("sqlite3", s.cfg.DbFilepath)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return db, nil
+
+	if err := db.Ping(); err != nil {
+		return fmt.Errorf("failed to ping database: %w", err)
+	}
+
+	s.db = db
+
+	return nil
 }
 
 func (s *SQLiteConnector) Close(ctx context.Context) error {
@@ -36,4 +54,8 @@ func (s *SQLiteConnector) Close(ctx context.Context) error {
 
 func (s *SQLiteConnector) Type() DatabaseType {
 	return SQLite
+}
+
+func (m *SQLiteConnector) Connection() any {
+	return m.db
 }
