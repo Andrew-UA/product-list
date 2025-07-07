@@ -2,13 +2,10 @@ package user_responses
 
 import (
 	"github.com/Andrew-UA/product-list/app/models"
-	"github.com/Andrew-UA/product-list/internal/transport/http/responses"
 	"time"
 )
 
-type UserResponse struct {
-	responses.ResponseJson
-
+type UserResponseData struct {
 	ID         uint64     `json:"id"`
 	FirstName  string     `json:"first_name"`
 	SecondName string     `json:"second_name"`
@@ -19,8 +16,8 @@ type UserResponse struct {
 	DeletedAt  *time.Time `json:"deleted_at,omitempty"`
 }
 
-func NewUserResponse(user *models.User) *UserResponse {
-	return &UserResponse{
+func NewUserResponse(user *models.User) *UserResponseData {
+	return &UserResponseData{
 		ID:         user.ID,
 		FirstName:  user.FirstName,
 		SecondName: user.SecondName,
@@ -29,5 +26,20 @@ func NewUserResponse(user *models.User) *UserResponse {
 		CreatedAt:  user.CreatedAt,
 		UpdatedAt:  user.UpdatedAt,
 		DeletedAt:  user.DeletedAt,
+	}
+}
+
+type UserListResponseData struct {
+	Users []*UserResponseData `json:"users"`
+}
+
+func NewUserListResponse(users []models.User) *UserListResponseData {
+	usersData := make([]*UserResponseData, len(users))
+	for i, user := range users {
+		usersData[i] = NewUserResponse(&user)
+	}
+
+	return &UserListResponseData{
+		Users: usersData,
 	}
 }

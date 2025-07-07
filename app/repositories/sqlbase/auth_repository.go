@@ -66,9 +66,9 @@ func (a AuthRepository) GetTokenByUserId(ctx context.Context, userId uint64) (*m
 
 func (a AuthRepository) GetTokenByTokenId(ctx context.Context, tokenId string) (*models.JwtAuth, error) {
 	query, args, err := squirrel.
-		Select("id", "user_id", "token_id", "created_at", "expired_at").
+		Select("id", "user_id", "token_id", "created_at", "expires_at").
 		From(a.TableName).
-		Where(squirrel.Eq{"tokenId": tokenId}).
+		Where(squirrel.Eq{"token_id": tokenId}).
 		Limit(1).
 		ToSql()
 	if err != nil {

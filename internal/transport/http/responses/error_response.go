@@ -1,15 +1,13 @@
 package responses
 
 type ErrorResponse struct {
-	ResponseJson
-	Errors []error `json:"errors"`
+	Errors []string `json:"errors"`
 }
 
-// TODO:
-func NewErrorResponse(errs ...error) *ErrorResponse {
-	response := &ErrorResponse{
-		Errors: errs,
+func NewErrorResponse(errs ...error) ErrorResponse {
+	out := make([]string, len(errs))
+	for i, e := range errs {
+		out[i] = e.Error()
 	}
-
-	return response
+	return ErrorResponse{Errors: out}
 }

@@ -34,28 +34,29 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	err := requests.ReadAndCLose(r, &request)
 	if err != nil {
-		responses.NewErrorResponse(err).SetStatusCode(http.StatusBadRequest).Write(w)
+		responses.NewResponseJson(http.StatusBadRequest, responses.NewErrorResponse(err)).Write(w)
 		return
 	}
 
 	err = h.Validator.ValidateStruct(&request)
 	if err != nil {
-		responses.NewErrorResponse(err).SetStatusCode(http.StatusBadRequest).Write(w)
+		responses.NewResponseJson(http.StatusBadRequest, responses.NewErrorResponse(err)).Write(w)
+		return
 	}
 
 	user, err := h.UserService.GetUserByEmail(ctx, request.Email)
 	if err != nil || user == nil {
-		responses.NewErrorResponse(ErrInvalidCredentials).SetStatusCode(http.StatusBadRequest).Write(w)
+		responses.NewResponseJson(http.StatusBadRequest, responses.NewErrorResponse(err)).Write(w)
 		return
 	}
 
 	token, err := h.AuthService.Login(ctx, user, request.Password)
 	if err != nil {
-		responses.NewErrorResponse(ErrInvalidCredentials).SetStatusCode(http.StatusBadRequest).Write(w)
+		responses.NewResponseJson(http.StatusBadRequest, responses.NewErrorResponse(err)).Write(w)
 		return
 	}
 
-	auth_responses.NewLoginResponse(token).SetStatusCode(200).Write(w)
+	responses.NewResponseJson(http.StatusAccepted, auth_responses.NewLoginResponseData(token)).Write(w)
 }
 
 func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {

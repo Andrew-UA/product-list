@@ -2,14 +2,13 @@ package mysql
 
 import (
 	"database/sql"
-	"github.com/Andrew-UA/product-list/app/repositories/interfaces"
-	"github.com/Andrew-UA/product-list/internal/config"
+	"github.com/Andrew-UA/product-list/app/repositories"
 )
 
 type Repository struct {
 	db       *sql.DB
-	authRepo interfaces.AuthRepository
-	userRepo interfaces.UserRepository
+	authRepo repositories.AuthRepository
+	userRepo repositories.UserRepository
 }
 
 func NewRepository(db *sql.DB) *Repository {
@@ -18,11 +17,7 @@ func NewRepository(db *sql.DB) *Repository {
 	}
 }
 
-func (r *Repository) Seed(cfg config.Config) error {
-	return nil
-}
-
-func (r *Repository) AuthRepository() interfaces.AuthRepository {
+func (r *Repository) AuthRepository() repositories.AuthRepository {
 	if r.authRepo == nil {
 		r.authRepo = NewAuthRepository(r.db)
 	}
@@ -30,7 +25,7 @@ func (r *Repository) AuthRepository() interfaces.AuthRepository {
 	return r.authRepo
 }
 
-func (r *Repository) UserRepository() interfaces.UserRepository {
+func (r *Repository) UserRepository() repositories.UserRepository {
 	if r.userRepo == nil {
 		r.userRepo = NewUserRepository(r.db)
 	}

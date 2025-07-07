@@ -4,14 +4,14 @@ import (
 	"context"
 	"github.com/Andrew-UA/product-list/app/dto"
 	"github.com/Andrew-UA/product-list/app/models"
-	"github.com/Andrew-UA/product-list/app/repositories/interfaces"
+	"github.com/Andrew-UA/product-list/app/repositories"
 )
 
 type UserService struct {
-	userRepository interfaces.UserRepository
+	userRepository repositories.UserRepository
 }
 
-func NewUserService(repository interfaces.UserRepository) *UserService {
+func NewUserService(repository repositories.UserRepository) *UserService {
 	return &UserService{
 		userRepository: repository,
 	}

@@ -1,9 +1,9 @@
-package repositories
+package factory
 
 import (
 	"database/sql"
 	"errors"
-	"github.com/Andrew-UA/product-list/app/repositories/interfaces"
+	"github.com/Andrew-UA/product-list/app/repositories"
 	"github.com/Andrew-UA/product-list/app/repositories/mongodb"
 	"github.com/Andrew-UA/product-list/app/repositories/mysql"
 	"github.com/Andrew-UA/product-list/app/repositories/postgres"
@@ -12,7 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func CreateRepository(dbConnector db.DatabaseConnector) (interfaces.Repository, error) {
+func CreateRepository(dbConnector db.DatabaseConnector) (repositories.Repository, error) {
 	conn := dbConnector.Connection()
 	switch dbConnector.Type() {
 	case db.MySQL:

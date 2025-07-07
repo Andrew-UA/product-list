@@ -26,7 +26,7 @@ func (u *UserRepository) SelectBuilder() squirrel.SelectBuilder {
 			"email",
 			"nickname",
 			"role",
-			"password",
+			"password_hash",
 			"created_at",
 			"updated_at",
 			"deleted_at",
@@ -42,7 +42,7 @@ func (u *UserRepository) ScanUser(scanner squirrel.RowScanner, user *models.User
 		&user.Email,
 		&user.Nickname,
 		&user.Role,
-		&user.Password,
+		&user.PasswordHash,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 		&user.DeletedAt,
@@ -156,7 +156,7 @@ func (u *UserRepository) Create(ctx context.Context, data dto.UserDTO) (*models.
 		insertData["nickname"] = nickname
 	}
 	if password, ok := data.Password.Value(); ok {
-		insertData["password"] = password
+		insertData["password_hash"] = password
 	}
 
 	insertData["created_at"] = now
@@ -203,7 +203,7 @@ func (u *UserRepository) Update(ctx context.Context, data dto.UserDTO, user *mod
 		updateData["nickname"] = nickname
 	}
 	if password, ok := data.Password.Value(); ok {
-		updateData["password"] = password
+		updateData["password_hash"] = password
 	}
 
 	if len(updateData) == 0 {

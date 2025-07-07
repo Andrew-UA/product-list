@@ -1,10 +1,9 @@
-package interfaces
+package repositories
 
 import (
 	"context"
 	"github.com/Andrew-UA/product-list/app/dto"
 	"github.com/Andrew-UA/product-list/app/models"
-	"github.com/Andrew-UA/product-list/internal/config"
 )
 
 type AuthRepository interface {
@@ -24,7 +23,6 @@ type UserRepository interface {
 }
 
 type Repository interface {
-	Seed(cfg config.Config) error
 	UserRepository() UserRepository
 	AuthRepository() AuthRepository
 }

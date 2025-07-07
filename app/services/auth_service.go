@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	models "github.com/Andrew-UA/product-list/app/models"
-	"github.com/Andrew-UA/product-list/app/repositories/interfaces"
+	"github.com/Andrew-UA/product-list/app/repositories"
 	"github.com/Andrew-UA/product-list/pkg/auth"
 	"strconv"
 	"time"
@@ -15,10 +15,10 @@ var ttl = time.Hour * 24
 type AuthService struct {
 	passwordManager auth.PasswordManager
 	tokenManager    auth.TokenManager
-	authRepository  interfaces.AuthRepository
+	authRepository  repositories.AuthRepository
 }
 
-func NewAuthService(passwordManager auth.PasswordManager, tokenManager auth.TokenManager, repository interfaces.AuthRepository) *AuthService {
+func NewAuthService(passwordManager auth.PasswordManager, tokenManager auth.TokenManager, repository repositories.AuthRepository) *AuthService {
 	return &AuthService{
 		passwordManager: passwordManager,
 		tokenManager:    tokenManager,
@@ -28,7 +28,7 @@ func NewAuthService(passwordManager auth.PasswordManager, tokenManager auth.Toke
 
 func (a *AuthService) Login(ctx context.Context, user *models.User, password string) (string, error) {
 
-	isValidPassword := a.passwordManager.CheckPassword(user.Password, password)
+	isValidPassword := a.passwordManager.CheckPassword(user.PasswordHash, password)
 	if !isValidPassword {
 		return "", errors.New("invalid password")
 	}

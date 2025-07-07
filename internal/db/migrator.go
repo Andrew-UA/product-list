@@ -19,9 +19,7 @@ func RunMigrations(dbConnector DatabaseConnector) error {
 
 	migrationsPath := fmt.Sprintf("%s", dbType)
 
-	a := migrations.MigrationFiles
-	fmt.Printf("%v", a)
-	sourceDriver, err := iofs.New(a, migrationsPath)
+	sourceDriver, err := iofs.New(migrations.MigrationFiles, migrationsPath)
 	if err != nil {
 		return fmt.Errorf("RunMigrations: failed to init embedded migration source: %w", err)
 	}

@@ -27,7 +27,7 @@ func (h *UserHandler) Index(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	users, _ := h.userService.GetUsers(ctx)
 
-	user_responses.NewUserListResponse(users).SetStatusCode(http.StatusOK).Write(w)
+	responses.NewResponseJson(http.StatusOK, user_responses.NewUserListResponse(users)).Write(w)
 }
 
 func (h *UserHandler) Show(w http.ResponseWriter, r *http.Request) {
@@ -38,7 +38,7 @@ func (h *UserHandler) Show(w http.ResponseWriter, r *http.Request) {
 
 	user, _ := h.userService.GetUserById(ctx, uint64(userId))
 
-	user_responses.NewUserResponse(user).SetStatusCode(http.StatusOK).Write(w)
+	responses.NewResponseJson(http.StatusOK, user_responses.NewUserResponse(user)).Write(w)
 }
 
 func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
@@ -56,7 +56,7 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 	data := request.ToDTO()
 	user, _ := h.userService.CreateUser(r.Context(), data)
 
-	user_responses.NewUserResponse(user).SetStatusCode(http.StatusCreated).Write(w)
+	responses.NewResponseJson(http.StatusCreated, user_responses.NewUserResponse(user)).Write(w)
 }
 
 func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
@@ -76,7 +76,7 @@ func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 	data := request.ToDTO()
 	user, _ = h.userService.UpdateUser(ctx, data, user)
 
-	user_responses.NewUserResponse(user).SetStatusCode(http.StatusOK).Write(w)
+	responses.NewResponseJson(http.StatusOK, user_responses.NewUserResponse(user)).Write(w)
 }
 
 func (h *UserHandler) Delete(w http.ResponseWriter, r *http.Request) {
@@ -88,5 +88,5 @@ func (h *UserHandler) Delete(w http.ResponseWriter, r *http.Request) {
 
 	_ = h.userService.DeleteUser(ctx, user)
 
-	responses.NewResponseJson(http.StatusNoContent).Write(w)
+	responses.NewResponseJson(http.StatusOK, nil).Write(w)
 }

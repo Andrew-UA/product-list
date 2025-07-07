@@ -2,8 +2,9 @@ package app
 
 import (
 	"context"
-	"github.com/Andrew-UA/product-list/app/repositories"
+	"github.com/Andrew-UA/product-list/app/repositories/factory"
 	"github.com/Andrew-UA/product-list/app/services"
+	"github.com/Andrew-UA/product-list/database/seeds"
 	"github.com/Andrew-UA/product-list/internal/config"
 	"github.com/Andrew-UA/product-list/internal/db"
 	"github.com/Andrew-UA/product-list/internal/server"
@@ -19,16 +20,18 @@ import (
 )
 
 func Run() {
-	conf, err := config.InitConfig()
+	var err error
+	var cfg *config.Config
+	cfg, err = config.InitConfig()
 
 	if err != nil {
 		log.Err(err).Msg("failed to read config")
 	}
-	config.InitLogger(conf)
+	config.InitLogger(cfg)
 
 	// Init BD connection
 	var dbConnector db.DatabaseConnector
-	if dbConnector, err = db.GetDataBaseConnector(conf); err != nil {
+	if dbConnector, err = db.GetDataBaseConnector(cfg); err != nil {
 		log.Fatal().Err(err).Msg("failed get db connector")
 	}
 
@@ -44,7 +47,7 @@ func Run() {
 		log.Fatal().Err(err).Msg("failed to run migrations")
 	}
 
-	repository, err := repositories.CreateRepository(dbConnector)
+	repository, err := factory.CreateRepository(dbConnector)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed get repository factory")
 	}
@@ -52,20 +55,27 @@ func Run() {
 	// Innit Services
 	validator := validation.NewValidator()
 	passwordManager := auth.NewBcryptPasswordManager()
-	tokenManager := auth.NewJWTTokenManager(conf.AppKey)
+	tokenManager := auth.NewJWTTokenManager(cfg.AppKey)
 	userService := services.NewUserService(repository.UserRepository())
 	authService := services.NewAuthService(passwordManager, tokenManager, repository.AuthRepository())
+
+	//Seeder
+	seeder := seeds.NewSeeder(cfg, passwordManager, repository.UserRepository())
+	err = seeder.Seed()
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to seed")
+	}
 
 	// Innit Middleware
 	authMiddleware := middleware.NewAuthMiddleware(userService, authService, tokenManager)
 
 	// Innit Handlers
-	healthHandler := handlers.NewHealthHandler(conf)
+	healthHandler := handlers.NewHealthHandler(cfg)
 	authHandler := handlers.NewAuthHandler(validator, userService, authService)
 	userHandler := handlers.NewUserHandler(validator, userService)
 
-	router := http.NewRouter(conf, authMiddleware.HandleFunc, healthHandler, authHandler, userHandler)
-	srv := server.NewServer(conf, router.Mux)
+	router := http.NewRouter(cfg, authMiddleware.HandleFunc, healthHandler, authHandler, userHandler)
+	srv := server.NewServer(cfg, router.Mux)
 
 	go func() {
 		if err := srv.Run(); err != nil {

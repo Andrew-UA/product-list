@@ -1,15 +1,14 @@
 package mongodb
 
 import (
-	"github.com/Andrew-UA/product-list/app/repositories/interfaces"
-	"github.com/Andrew-UA/product-list/internal/config"
+	"github.com/Andrew-UA/product-list/app/repositories"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type Repository struct {
 	client   *mongo.Client
-	authRepo interfaces.AuthRepository
-	userRepo interfaces.UserRepository
+	authRepo repositories.AuthRepository
+	userRepo repositories.UserRepository
 }
 
 func NewRepository(client *mongo.Client) *Repository {
@@ -18,11 +17,7 @@ func NewRepository(client *mongo.Client) *Repository {
 	}
 }
 
-func (r *Repository) Seed(cfg config.Config) error {
-	return nil
-}
-
-func (r *Repository) AuthRepository() interfaces.AuthRepository {
+func (r *Repository) AuthRepository() repositories.AuthRepository {
 	if r.authRepo == nil {
 		r.authRepo = NewAuthRepository(r.client)
 	}
@@ -30,7 +25,7 @@ func (r *Repository) AuthRepository() interfaces.AuthRepository {
 	return r.authRepo
 }
 
-func (r *Repository) UserRepository() interfaces.UserRepository {
+func (r *Repository) UserRepository() repositories.UserRepository {
 	if r.userRepo == nil {
 		r.userRepo = NewUserRepository(r.client)
 	}

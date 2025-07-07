@@ -72,7 +72,7 @@ func (r *Router) registerAuthRoutes() {
 
 func (r *Router) registerUserRoutes() {
 	r.Mux.HandleFunc(GET+v1+"/users", r.AuthMiddleware(r.UserHandler.Index))
-	r.Mux.HandleFunc(GET+v1+"/users/{id}}", r.AuthMiddleware(r.UserHandler.Show))
+	r.Mux.HandleFunc(GET+v1+"/users/{id}", r.AuthMiddleware(r.UserHandler.Show))
 	r.Mux.HandleFunc(POST+v1+"/users", r.AuthMiddleware(r.UserHandler.Create))
 	r.Mux.HandleFunc(PUT+v1+"/users/{id}", r.AuthMiddleware(r.UserHandler.Update))
 	r.Mux.HandleFunc(DELETE+v1+"/users/{id}", r.AuthMiddleware(r.UserHandler.Delete))
