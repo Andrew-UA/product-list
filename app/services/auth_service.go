@@ -28,7 +28,7 @@ func NewAuthService(passwordManager auth.PasswordManager, tokenManager auth.Toke
 
 func (a *AuthService) Login(ctx context.Context, user *models.User, password string) (string, error) {
 
-	isValidPassword := a.passwordManager.CheckPassword(user.PasswordHash, password)
+	isValidPassword := a.passwordManager.CheckPassword(*user.PasswordHash, password)
 	if !isValidPassword {
 		return "", errors.New("invalid password")
 	}

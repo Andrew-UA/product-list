@@ -33,10 +33,18 @@ func (h *UserHandler) Index(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) Show(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	userIdStr := r.URL.Query().Get("id")
-	userId, _ := strconv.ParseInt(userIdStr, 10, 64)
+	userIdStr := r.PathValue("id")
+	userId, err := strconv.ParseInt(userIdStr, 10, 64)
+	if err != nil {
+		responses.NewResponseJson(http.StatusBadRequest, responses.NewErrorResponse(err)).Write(w)
+		return
+	}
 
-	user, _ := h.userService.GetUserById(ctx, uint64(userId))
+	user, err := h.userService.GetUserById(ctx, uint64(userId))
+	if err != nil {
+		responses.NewResponseJson(http.StatusBadRequest, responses.NewErrorResponse(err)).Write(w)
+		return
+	}
 
 	responses.NewResponseJson(http.StatusOK, user_responses.NewUserResponse(user)).Write(w)
 }
@@ -46,15 +54,21 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		responses.NewResponseJson(http.StatusBadRequest, responses.NewErrorResponse(err)).Write(w)
+		return
 	}
 	err = h.validator.ValidateStruct(&request)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		responses.NewResponseJson(http.StatusBadRequest, responses.NewErrorResponse(err)).Write(w)
+		return
 	}
 
 	data := request.ToDTO()
-	user, _ := h.userService.CreateUser(r.Context(), data)
+	user, err := h.userService.CreateUser(r.Context(), data)
+	if err != nil {
+		responses.NewResponseJson(http.StatusInternalServerError, responses.NewErrorResponse(err)).Write(w)
+		return
+	}
 
 	responses.NewResponseJson(http.StatusCreated, user_responses.NewUserResponse(user)).Write(w)
 }
@@ -63,30 +77,51 @@ func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 	var request user_requests.UpdateUserRequest
 
 	ctx := r.Context()
-	userIdStr := r.URL.Query().Get("id")
-	userId, _ := strconv.ParseInt(userIdStr, 10, 64)
-
-	user, _ := h.userService.GetUserById(ctx, uint64(userId))
-
-	err := json.NewDecoder(r.Body).Decode(&request)
+	userIdStr := r.PathValue("id")
+	userId, err := strconv.ParseInt(userIdStr, 10, 64)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		responses.NewResponseJson(http.StatusBadRequest, responses.NewErrorResponse(err)).Write(w)
+	}
+
+	user, err := h.userService.GetUserById(ctx, uint64(userId))
+	if err != nil {
+		responses.NewResponseJson(http.StatusBadRequest, responses.NewErrorResponse(err)).Write(w)
+	}
+
+	err = json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		responses.NewResponseJson(http.StatusBadRequest, responses.NewErrorResponse(err)).Write(w)
 	}
 
 	data := request.ToDTO()
-	user, _ = h.userService.UpdateUser(ctx, data, user)
+	user, err = h.userService.UpdateUser(ctx, data, user)
+	if err != nil {
+		responses.NewResponseJson(http.StatusInternalServerError, responses.NewErrorResponse(err)).Write(w)
+	}
 
 	responses.NewResponseJson(http.StatusOK, user_responses.NewUserResponse(user)).Write(w)
 }
 
 func (h *UserHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userIdStr := r.URL.Query().Get("id")
-	userId, _ := strconv.ParseInt(userIdStr, 10, 64)
+	userIdStr := r.PathValue("id")
+	userId, err := strconv.ParseInt(userIdStr, 10, 64)
+	if err != nil {
+		responses.NewResponseJson(http.StatusBadRequest, responses.NewErrorResponse(err)).Write(w)
+		return
+	}
 
-	user, _ := h.userService.GetUserById(ctx, uint64(userId))
+	user, err := h.userService.GetUserById(ctx, uint64(userId))
+	if err != nil {
+		responses.NewResponseJson(http.StatusBadRequest, responses.NewErrorResponse(err)).Write(w)
+		return
+	}
 
-	_ = h.userService.DeleteUser(ctx, user)
+	err = h.userService.DeleteUser(ctx, user)
+	if err != nil {
+		responses.NewResponseJson(http.StatusInternalServerError, responses.NewErrorResponse(err)).Write(w)
+		return
+	}
 
 	responses.NewResponseJson(http.StatusOK, nil).Write(w)
 }

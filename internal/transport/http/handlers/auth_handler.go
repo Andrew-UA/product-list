@@ -2,7 +2,10 @@ package handlers
 
 import (
 	"errors"
+	"fmt"
+	"github.com/Andrew-UA/product-list/app/models"
 	"github.com/Andrew-UA/product-list/app/services"
+	"github.com/Andrew-UA/product-list/internal/transport/http/middleware"
 	"github.com/Andrew-UA/product-list/internal/transport/http/requests"
 	"github.com/Andrew-UA/product-list/internal/transport/http/requests/auth_requests"
 	"github.com/Andrew-UA/product-list/internal/transport/http/responses"
@@ -60,5 +63,18 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	user, ok := ctx.Value(middleware.AuthUserKey).(*models.User)
+	if !ok {
+		responses.NewResponseJson(http.StatusInternalServerError, responses.NewErrorResponse(fmt.Errorf("can't parse user from context"))).Write(w)
+		return
+	}
 
+	err := h.AuthService.Logout(ctx, user)
+	if err != nil {
+		responses.NewResponseJson(http.StatusInternalServerError, responses.NewErrorResponse(err)).Write(w)
+		return
+	}
+
+	responses.NewResponseJson(http.StatusOK, nil).Write(w)
 }

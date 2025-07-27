@@ -56,8 +56,9 @@ func (m *AuthMiddleware) HandleFunc(next http.HandlerFunc) http.HandlerFunc {
 		}
 
 		user, err := m.UserService.GetUserById(ctx, uint64(authorizedUserID))
-		if err != nil || user == nil || user.ID != token.UserID {
+		if err != nil || user == nil || token == nil || user.ID != token.UserID {
 			http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+			return
 		}
 
 		ctx = context.WithValue(ctx, AuthUserKey, user)
