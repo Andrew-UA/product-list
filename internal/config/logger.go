@@ -20,11 +20,11 @@ func InitLogger(config *Config) {
 	}
 
 	if config.AppEnv == "local" {
-		// Налаштовуємо ConsoleWriter
+		// Configure ConsoleWriter
 		writer = zerolog.ConsoleWriter{
-			Out:        os.Stdout,             // Писати в консоль
-			TimeFormat: "2006-01-02 15:04:05", // Формат часу
-			NoColor:    false,                 // Увімкнути кольори
+			Out:        os.Stdout,             // Write in console
+			TimeFormat: "2006-01-02 15:04:05", // Time format
+			NoColor:    false,                 // Enable colors
 		}
 
 		defer func() {
@@ -38,7 +38,7 @@ func InitLogger(config *Config) {
 		}()
 	}
 
-	// Встановлюємо глобальний логер
+	// Set global logger
 	log.Logger = zerolog.New(writer).With().Timestamp().Logger()
 	zerolog.SetGlobalLevel(level)
 }

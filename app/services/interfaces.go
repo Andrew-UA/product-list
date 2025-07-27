@@ -1,0 +1,22 @@
+package services
+
+import (
+	"context"
+	"github.com/Andrew-UA/product-list/app/dto"
+	models "github.com/Andrew-UA/product-list/app/models"
+)
+
+type AuthServiceInterface interface {
+	Login(ctx context.Context, user *models.User, password string) (string, error)
+	Logout(ctx context.Context, user *models.User) error
+	GetTokenByTokenId(ctx context.Context, tokenId string) (*models.JwtAuth, error)
+}
+
+type UsersServiceInterface interface {
+	GetUsers(ctx context.Context) ([]models.User, error)
+	GetUserById(ctx context.Context, userId uint64) (*models.User, error)
+	GetUserByEmail(ctx context.Context, email string) (*models.User, error)
+	CreateUser(ctx context.Context, data dto.UserDTO) (*models.User, error)
+	UpdateUser(ctx context.Context, data dto.UserDTO, user *models.User) (*models.User, error)
+	DeleteUser(ctx context.Context, user *models.User) error
+}

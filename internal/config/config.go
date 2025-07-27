@@ -8,11 +8,22 @@ import (
 )
 
 type Config struct {
-	LogLevel string
-	AppName  string
-	AppHost  string
-	AppPort  string
-	AppEnv   string
+	LogLevel      string
+	AppName       string
+	AppKey        string
+	AppHost       string
+	AppPort       string
+	AppEnv        string
+	DbType        string
+	DbUser        string
+	DbPassword    string
+	DbHost        string
+	DbPort        string
+	DbName        string
+	DbFilepath    string
+	DbSslMode     string
+	AdminEmail    string
+	AdminPassword string
 }
 
 func InitConfig() (*Config, error) {
@@ -27,6 +38,21 @@ func InitConfig() (*Config, error) {
 		AppHost:  getEnv("APP_HOST", "localhost"),
 		AppPort:  getEnv("APP_PORT", "8080"),
 		AppEnv:   getEnv("APP_ENV", "local"),
+		AppKey:   getEnv("APP_KEY", ""),
+
+		//DB config
+		DbType:     getEnv("DB_TYPE", "mysql"),
+		DbUser:     getEnv("DB_USER", "root"),
+		DbPassword: getEnv("DB_PASSWORD", ""),
+		DbHost:     getEnv("DB_HOST", "localhost"),
+		DbPort:     getEnv("DB_PORT", "3306"),
+		DbName:     getEnv("DB_NAME", "product_list"),
+		DbFilepath: getEnv("DB_FILE_PATH", "./.temp/sqlite/product_list.db"), //sqlite
+		DbSslMode:  getEnv("DB_SSL_MODE", "disable"),                         //postgres
+
+		//Admin user
+		AdminEmail:    getEnv("ADMIN_EMAIL", ""),
+		AdminPassword: getEnv("ADMIN_PASSWORD", ""),
 	}
 
 	return config, nil
